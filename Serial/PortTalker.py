@@ -1,8 +1,12 @@
 import serial
 import sys
+from datetime import datetime
+import time
+
+comport = 'COM16'
 
 try:
-    with serial.Serial("/dev/ttyACM0") as s:
+    with serial.Serial(comport) as s:
         s.baudrate = 115200
         s.bytesize = serial.EIGHTBITS
         s.parity = serial.PARITY_NONE
@@ -10,9 +14,12 @@ try:
         s.timeout = None
 
         while True:
-            nmea = s.readline()
-            nmea = nmea.strip().decode()
-            print(nmea)
+            now = datetime.now()
+            this_time = now.strftime("%H:%M:%S")
+            this_time_bytes = bytes(this_time, 'utf-8')
+            s.write(this_time_bytes)
+            print(f'Sent {this_time} to port {comport}')
+            time.sleep(2)
 
 except serial.SerialException as err:
     print("Serial Port Error: \n" + str(err))
@@ -25,4 +32,5 @@ except Exception as err:
     print(err)
     sys.exit()
 
-print("Session regularly closed!")
+
+
